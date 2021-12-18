@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Device.I2c;
 using System.Device.Gpio;
 using System.Device.Gpio.Drivers;
 using System.Threading;
@@ -27,8 +28,16 @@ Console.WriteLine($"GPIO pin enabled: {pin}");
 
 Console.CancelKeyPress += new ConsoleCancelEventHandler(myHandler);
 
-void myHandler(object sender, ConsoleCancelEventArgs args)
+const int busId = 1; //new
+
+I2cConnectionSettings i2cSettings = new(busId, Bme280.DefaultI2cAddress);
+using I2cDevice i2cDevice = I2cDevice.Create(i2cSettings);
+using Bme280 bme80 = new Bme280(i2cDevice)
 {
+    // set higher sampling
+    TemperatureSampling = Sampling.LowPower,
+    PressureSampling = Sampling.UltraHighResolution,
+    HumiditySampling = Sampling.Standard,
 
     controller.Write(pin, PinValue.Low);
     controller.Dispose();
